@@ -1,0 +1,4 @@
+# Added to vsanApps.sc
+
+vsanApp('dedup_proj', '#bora/apps/dedup',
+        ['dedup.c','walkDirectoryTree.c','hash.c'])
