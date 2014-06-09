@@ -11,7 +11,6 @@ void generateDump(char* source, char* destination);
 void dedup(char *source);
 void cleanDump(char *file);
 int checkSource(char *source);
-void FWRITE(char *buf,char *msg, FILE* stream);
 FILE* FOPEN(char *fileName, char* mode);
 void FCLOSE(FILE *fp);
 
@@ -43,65 +42,25 @@ void cleanDump(char *file){
 // Generate text dump by scanning the target location
 void generateDump(char* source, char* destination){
     FILE *ip,*op;
-    char size_str[MAX_BUF_LEN];
-    char offset_str[MAX_BUF_LEN];
     unsigned long len;
     unsigned long offset=0;
-    char *buf, *buf_orig , *buf_read;
-    char header[MAX_FILE_NAME_LEN];
+    char buf[1024*4];	// No dynmaic allocation
     char out[MD5_HASH_LEN*2+1];
-    buf = NULL;
-    buf_orig = NULL;
-    buf_read = NULL;
     printf("File to work on : %s\n",source);
     ip = FOPEN(source,"rb");
     op = FOPEN(destination,"ab");
-
-    if(verbose){
-        strcpy(header,"String, File Name, md5, offset, size \n");
-        FWRITE(header, "header", op);
-    }
-
-    if((buf = (char*)malloc(4*1024)) == NULL){
-        printf("Error in allocating memory");
-    }
-    buf_orig=buf;
-    buf_read = buf;
+    fprintf(op,"String,File Name,md5,offset,size\n"); 
     while((len=fread(buf,1,RDLEN,ip))!=0){
-		strcpy(out,"");
+	strcpy(out,"");
         getMD5(buf,out,len);
-        if(verbose){
-            FWRITE(buf_read, "buf",op);
-            FWRITE(",",",",op);
-        }
-        if(fileNameRequired){
-            FWRITE(source, "fileName",op);
-            FWRITE(",",",",op);
-        }
-        FWRITE(out,"md5value",op);
-        FWRITE(",",",",op);
-        Str_Sprintf(offset_str,MAX_FILE_NAME_LEN, "%lu",offset);
-        FWRITE(offset_str,"offset",op);
-        FWRITE(",",",",op);
-
-        Str_Sprintf(size_str,MAX_FILE_NAME_LEN, "%lu",len);
-        FWRITE(size_str,"size",op);
-        FWRITE("\n","New Line",op);
-
+	// Reduced number of printfs:
+	fprintf(op,"%s,%s,%lu,%lu\n",source,out,offset,len);
         offset += len;
     }
-    free(buf);
     FCLOSE(op);
     FCLOSE(ip);
 }
 
-
-// Error checking wrapper for fwrite
-void FWRITE(char *buf,char *msg, FILE* stream){
-    if(fwrite(buf,1,strlen(buf),stream)!=strlen(buf)){
-        printf("Error in writing %s to file\n",msg);
-    }
-}
 //Error checking wrapper for fopen
 FILE* FOPEN(char *fileName, char* mode){
     FILE* fp = NULL;
