@@ -10,7 +10,7 @@
 void generateDump(char* source, char* destination);
 void dedup(char *source);
 void cleanDump(char *file);
-int checkSource(char *source);
+int isAccessible(char *source);
 
 
 int main(){
@@ -19,17 +19,33 @@ int main(){
     return 0;
 }
 
+/*
+   Wrapper around the function 'generateDump()'. This wrapper
+   checks whether the file who's deduplication analysis has
+   been requested is accessible by the program.
+
+   Input Parameters:
+      - source: absolute path of the file under consideration
+ */
 
 void dedup(char *source)
 {
-    if(checkSource(source)){
+    if(isAccessible(source)){
         generateDump(source,DST);
     }
+   else{
+      printf("File %s not accessible\n",source);
+   }
     return;
 }
 
+/*
+   Delete the dump file created in previous run
 
-// Delete the dump file created in previous run
+   Input Parameters:
+      - source : Absolute path where the dedup metadata is to be placed
+*/
+
 void cleanDump(char *file){
 	FILE *fp=NULL;
 	fp=fopen(file,"wb");
@@ -42,14 +58,26 @@ void cleanDump(char *file){
 	return;
 }
 
-// Generate text dump by scanning the target location
+/* Generate text dump by scanning the target location
+
+   Input Parameters:
+      - source : char buffer containing absolute address
+                 of the folder whos files will be scanned
+      - destination: Absolute path where the text dump
+                 will be stored
+*/
+
 void generateDump(char* source, char* destination){
     FILE *ip,*op;
     unsigned long len;
     unsigned long offset=0;
     char buf[1024*4];	// No dynmaic allocation
-    char out[MD5_HASH_LEN*2+1];
-    printf("File to work on : %s\n",source);
+    char out[MD5_HASH_LEN*2+1];  // MD5_HASH_LEN stores the length of 
+				 // the encoding in bytes. When converted
+				 // to char array, each bytes will be 
+				 // represented by 2 characters. The array
+				 // will be terminated by a null char '\0'
+				 // Thus the length is 2*MD5_HASH_LEN + 1
     ip=fopen(source,"wb");
     if(ip==NULL){
         printf("Failed to open file %s in %s mode\n",source,"wb");
@@ -73,10 +101,26 @@ void generateDump(char* source, char* destination){
     }
 }
 
+/*
+   Checks if the file under consideration is accessible to the program. 
 
-int checkSource(char *source){
-    FILE *fp=NULL;
-    if((fp=fopen(source, "rb"))==NULL){
+   Input Parameters:
+      - source: Absolute path of the file whose accessibility has to
+		be checked.
+   Returns: 1 for success, 0 for failure (not accessible)
+ */
+
+int isAccessible(char *source){
+    FILE *fp;
+    size_t size;
+    struct stat st;
+    stat(source,&st);
+    size = st.st_size;
+    if(size == 0){
+	return 0;
+    }
+    fp = NULL:
+    if((fp=fopen(source,"rb"))==NULL){
         return 0;
     }
     else{
