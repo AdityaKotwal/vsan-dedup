@@ -11,8 +11,6 @@ void generateDump(char* source, char* destination);
 void dedup(char *source);
 void cleanDump(char *file);
 int checkSource(char *source);
-FILE* FOPEN(char *fileName, char* mode);
-void FCLOSE(FILE *fp);
 
 
 int main(){
@@ -34,8 +32,13 @@ void dedup(char *source)
 // Delete the dump file created in previous run
 void cleanDump(char *file){
 	FILE *fp=NULL;
-	fp=FOPEN(file,"wb");
-	FCLOSE(fp);
+	fp=fopen(file,"wb");
+	if(fp==NULL){
+        	printf("Failed to open file %s in %s mode\n",file,"wb");
+    	}
+	if(fclose(fp)!=0){
+		printf("Failed to close file %s\n",file);
+	}	
 	return;
 }
 
@@ -47,33 +50,26 @@ void generateDump(char* source, char* destination){
     char buf[1024*4];	// No dynmaic allocation
     char out[MD5_HASH_LEN*2+1];
     printf("File to work on : %s\n",source);
-    ip = FOPEN(source,"rb");
-    op = FOPEN(destination,"ab");
+    ip=fopen(source,"wb");
+    if(ip==NULL){
+        printf("Failed to open file %s in %s mode\n",source,"wb");
+    }
+    op=fopen(destination,"wb");
+    if(op==NULL){
+        printf("Failed to open file %s in %s mode\n",destination,"ab");
+    }
     fprintf(op,"String,File Name,md5,offset,size\n"); 
     while((len=fread(buf,1,RDLEN,ip))!=0){
 	strcpy(out,"");
         getMD5(buf,out,len);
-	// Reduced number of printfs:
 	fprintf(op,"%s,%s,%lu,%lu\n",source,out,offset,len);
         offset += len;
     }
-    FCLOSE(op);
-    FCLOSE(ip);
-}
-
-//Error checking wrapper for fopen
-FILE* FOPEN(char *fileName, char* mode){
-    FILE* fp = NULL;
-    if((fp=fopen(fileName,mode))==NULL){
-        printf("Failed to open file %s in %s mode\n",fileName,mode);
+    if(fclose(op)!=0){
+	printf("Error closing file %s\n",destination);
     }
-    return fp;
-}
-
-// Error checking wrapper for fclose
-void FCLOSE(FILE *fp){
-    if(fclose(fp)!=0){
-        printf("Error closing file, %d\n",errno);
+    if(fclose(ip)!=0){
+	printf("Error closing file %s\n",source);
     }
 }
 
@@ -84,7 +80,9 @@ int checkSource(char *source){
         return 0;
     }
     else{
-        FCLOSE(fp);
+        if(fclose(fp)!=0){
+		printf("Error closing file %s\n",source);
+	}
         return 1;
     }
 }
