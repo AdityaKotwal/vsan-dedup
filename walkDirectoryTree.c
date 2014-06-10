@@ -4,10 +4,10 @@
 #include "dedup.h"
 
 enum {
-	WALK_OK = 0,
-	WALK_BADPATTERN,
-	WALK_NAMETOOLONG,
-	WALK_BADIO,
+   WALK_OK = 0,
+   WALK_BADPATTERN,
+   WALK_NAMETOOLONG,
+   WALK_BADIO,
 };
 
 #define WS_NONE		0
