@@ -119,13 +119,13 @@ int isAccessible(char *source){
    if(size == 0){
       return 0;
    }
-   fp = NULL:
+   fp = NULL;
    if((fp=fopen(source,"rb"))==NULL){
       return 0;
    }
    else{
-      if(fclose(fp)!=0){
-	 printf("Error closing file %s\n",source);
+      if(fclose(fp)!=0){ 
+         printf("Error closing file %s\n",source);
       }
       return 1;
    }
