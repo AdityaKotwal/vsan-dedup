@@ -69,7 +69,7 @@ char bin2Hex(unsigned char bin){
 	    return 'F';
 	 default:
 	    printf("Error in conversion\n");
-	    return ((char) 0 );
+	    return '0';
       }
    }
    return '0';

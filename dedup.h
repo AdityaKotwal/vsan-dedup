@@ -31,5 +31,10 @@
    int walk_dir(char *dname, char *pattern, int spec, void (*hashFile)(char *file));
    int walk(char* source,void (*hashFile)(char *file));
    void getMD5(const char *string, char *md5buf, long len);
-   char bin2Hex(unsigned char bin){
+   char bin2Hex(unsigned char bin);
+   void generateDump(char* source, char* destination);
+   void dedup(char *source);
+   void cleanDump(char *file);
+   int isAccessible(char *source);
+   void traverse(char *dirPath);
 #endif

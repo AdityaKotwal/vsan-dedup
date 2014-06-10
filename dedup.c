@@ -7,15 +7,10 @@
 
 #include "dedup.h"
 
-void generateDump(char* source, char* destination);
-void dedup(char *source);
-void cleanDump(char *file);
-int isAccessible(char *source);
-
 
 int main(){
    cleanDump(DST);
-   walk(SRC,dedup);
+   traverse(SRC);
    return 0;
 }
 
