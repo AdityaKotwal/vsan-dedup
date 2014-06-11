@@ -17,7 +17,6 @@
 #include <dirent.h>
 #include <regex.h>
 #include <err.h>
-
 #include <str.h>
 #include "md5.h"
 #define SRC "/testInDir"
@@ -26,7 +25,7 @@
 #ifndef __dedup_h__
    #define __dedup_h__
    #define MAX_COMBINED_HASH_LEN 1024*1024
-   #define MAX_FILE_NAME_LEN 1024*1024
+   #define MAX_FILE_NAME_LEN 1024
    #define MAX_BUF_LEN 4*1024
    #define RDLEN MAX_BUF_LEN
   

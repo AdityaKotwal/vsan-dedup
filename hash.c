@@ -20,7 +20,8 @@
 
 void getMD5(const char *string,	 // IN: String buffer which has to be encoded
 	    long len,		 // IN: Length of the string buffer 
-	    char *md5buf){	 // OUT: Pre-allocated buffer to store result
+	    char *md5buf)	 // OUT: Pre-allocated buffer to store result
+{
    unsigned char final[MD5_HASH_LEN];
    MD5_CTX ctx;
    int i;
@@ -56,12 +57,13 @@ void getMD5(const char *string,	 // IN: String buffer which has to be encoded
 char bin2Hex(unsigned char bin) // IN: the binary number passed
 {			        //     with higher nibble set to 0
    int value; 
-   value = (bin & 0x1);
+/*   value = (bin & 0x1);
    value += (bin & 0x2) * 2;
    value += (bin & 0x4) * 4;
-   value += (bin & 0x8) * 8;
+   value += (bin & 0x8) * 8;*/
+   value = (int) bin;
    if(value < 10){
-      return ((char)(value + 0x60));
+      return ((char)(value + 0x30)); //0x30 is the ascii value for '0'
    }
    else{
       switch(value % 10){
