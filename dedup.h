@@ -1,9 +1,11 @@
-//
-//  dedup.h
-//  Dedup_Project
-//
-//  Created by Aditya Kotwal on 6/5/14.
-//
+
+
+/*
+ * ddup.h -
+ *
+ *    This header file illustrates the modules used for
+ *    the desiref purpose.
+ */
 
 #include <stdio.h>
 #include <string.h>
@@ -27,14 +29,14 @@
    #define MAX_FILE_NAME_LEN 1024*1024
    #define MAX_BUF_LEN 4*1024
    #define RDLEN MAX_BUF_LEN
-   int walk_recur(char *dname, regex_t *reg, int spec, void (*hashFile)(char *file));
-   int walk_dir(char *dname, char *pattern, int spec, void (*hashFile)(char *file));
-   int walk(char* source,void (*hashFile)(char *file));
-   void getMD5(const char *string, char *md5buf, long len);
-   char bin2Hex(unsigned char bin);
-   void generateDump(char* source, char* destination);
-   void dedup(char *source);
+  
+   void getMD5( const char *string, 
+	        long len, 
+	        char *md5len );
+   char bin2Hex( unsigned char bin );
+   void generateDedupDump( char* source,
+			   char* destination);
    void cleanDump(char *file);
-   int isAccessible(char *source);
+   int isDedupCandidate(char *source);
    void traverse(char *dirPath);
 #endif

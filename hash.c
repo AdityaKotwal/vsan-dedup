@@ -1,21 +1,26 @@
-
-//  Created by Aditya Kotwal on 6/5/14.
+/*
+ * This module deals with functions to encode string values
+ * to their corresponing md5 hash
+ */
 
 #include <stdio.h>
 #include <string.h>
 #include "dedup.h"
-/*
-A function to generate MD5 hash of a string using funcitons
-available in the openSSL library.
 
-Input Parameters:
-   - String: A char buffer containing the string which is to
-             be md5 encoded
-   - md5buf: A pre-allocated character buffer where the
-             result will be stored
-   - len : Lenght of the string which has to be md5 encoded
-*/
-void getMD5(const char *string, char *md5buf, long len){
+/*
+ * --------------------------------------------------------
+ *
+ *  getMD5 --
+ *
+ *    A function to generate MD5 hash of a string using 
+ *    funcitons available in the openSSL library.
+ *
+ * ----------------------------------------------------------
+ */
+
+void getMD5(const char *string,	 // IN: String buffer which has to be encoded
+	    long len,		 // IN: Length of the string buffer 
+	    char *md5buf){	 // OUT: Pre-allocated buffer to store result
    unsigned char final[MD5_HASH_LEN];
    MD5_CTX ctx;
    int i;
@@ -36,15 +41,20 @@ void getMD5(const char *string, char *md5buf, long len){
 }
 
 /*
-A function to get the equivalent hexadecimal representation
-of a nibble passed.
+ * ----------------------------------------------------------
+ * 
+ *  bin2Hex --
+ *
+ *    A function to get the equivalent hexadecimal representation
+ *    of a binary value passed.
+ *
+ * Required:
+ *    The 4 LSB bits must be 0 for the input
+ * ---------------------------------------------------------
+ */
 
-Input Parameters:
-   - bin : Character parameter passed with the higher nibble set to 0
-Ouput:
-   - Hexademical charater representation
-*/
-char bin2Hex(unsigned char bin){
+char bin2Hex(unsigned char bin) // IN: the binary number passed
+{			        //     with higher nibble set to 0
    int value; 
    value = (bin & 0x1);
    value += (bin & 0x2) * 2;
@@ -67,10 +77,8 @@ char bin2Hex(unsigned char bin){
 	    return 'E';
 	 case 5:
 	    return 'F';
-	 default:
-	    printf("Error in conversion\n");
-	    return '0';
       }
    }
+   printf("Error in coversion\n");
    return '0';
 }
