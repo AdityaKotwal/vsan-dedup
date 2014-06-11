@@ -16,27 +16,27 @@ echo "Combining $numOfSegsToCombine consecutive hashes and rehashing..."
 condition=1
 # Loop which combines adjacent segments.
 while [ "$condition" -ne "0" ]; do
-	md5=""
-	size=0
-	count=$numOfSegsToCombine
-	while [ "$count" -ne "0" ]; do
-		md5_new=$(mysql -u root -N --database="db" --execute="select md5 from temp_table limit 1;")
-		size_new=$(mysql -u root -N --database="db" --execute="select size from temp_table limit 1;")
-		mysql -u root --database="db" --execute="delete from temp_table limit 1;"
-		if [ $md5_new ]; then
-			condition=1;
-		else
-			condition=0;
-			break;
-		fi
-		md5=$(echo "$md5 $md5_new")
-		size=$(($size + $size_new))
-		count=$(($count - 1))
-	done
-	if [ "$size" -ne "0" ]; then
-		query="insert into table_larger_segments values (\"$md5\",$size);"
-		mysql -u root --database="db" --execute="$query"
-	fi;
+   md5=""
+   size=0
+   count=$numOfSegsToCombine
+   while [ "$count" -ne "0" ]; do
+      md5_new=$(mysql -u root -N --database="db" --execute="select md5 from temp_table limit 1;")
+      size_new=$(mysql -u root -N --database="db" --execute="select size from temp_table limit 1;")
+      mysql -u root --database="db" --execute="delete from temp_table limit 1;"
+      if [ $md5_new ]; then
+	 condition=1;
+      else
+	 condition=0;
+	 break;
+      fi
+      md5=$(echo "$md5 $md5_new")
+      size=$(($size + $size_new))
+      count=$(($count - 1))
+   done
+   if [ "$size" -ne "0" ]; then
+      query="insert into table_larger_segments values (\"$md5\",$size);"
+      mysql -u root --database="db" --execute="$query"
+   fi;
 done
 
 # Remove dump file if already exists
@@ -46,7 +46,7 @@ mysql -u root --database="db" --execute="select * into outfile '/tmp/file1' fiel
 
 # Generate new MD5 hashes:
 # Use these combined md5 values to create new md5s
-./out 2
+./combine
 echo "With combined blocks"
 
 mysql -u root --database="db" --execute="drop table table_larger_segments_2;"

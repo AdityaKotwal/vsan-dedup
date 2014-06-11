@@ -1,3 +1,7 @@
+/*********************************************************
+ * Copyright 2014 VMware, Inc.  All rights reserved.
+ * -- VMware Confidential
+ *********************************************************/
 
 #include "dedup.h"
 
@@ -5,25 +9,27 @@
  * dedup.c 
  *
  *    This module provides functions and wrappers to deal with
- *    the dump file as well as other functions which can be
- *    used to encode the hashes for the purpose of deduplication 
+ *    the generating a record of hashes of consecutive 4K blocks
+ *    in all the files of a directory for the purpose of 
+ *    deduplication analysis
 */
 
-int main( )
+int main()
 {
    cleanDump( DST );
+   printHeader( DST );
    traverse( SRC );
    return 0;
 }
 
 /*
  * ------------------------------------------------------------
- *  cleanDump --
+ * cleanDump --
  * 
  *    File opened and closed in write mode and thus over-written
  *
- *  Side Effects:
- *    Contents of the target file lost
+ * Side Effects:
+ *    Previous contents of the target file lost
  * -------------------------------------------------------------
  */
 
@@ -55,14 +61,14 @@ void cleanDump( char *file ) // IN: Absolute path of the file to be overwritten
  * -----------------------------------------------------------
  */
 
-void generateDedupDump( char* source,	       // IN: Abs path of source file
+void generateDedupDump( char* source,  // IN: Abs path of source file
 		  char* destination )  // IN: Abs path of destination of dump
 {
    FILE *ip,*op;
    unsigned long len;
    unsigned long offset;
    char buf[ 1024 * 4 ];	
-   char out[ MD5_HASH_LEN * 2 + 1];  // each byte represented by 2 characters.
+   char out[ MD5_HASH_LEN * 2 + 1];  // Each byte represented by 2 hex values.
 				     // String terminated by a null char '\0'	
    offset = 0;
    if( !isDedupCandidate( source ) ){
@@ -73,23 +79,20 @@ void generateDedupDump( char* source,	       // IN: Abs path of source file
    if( ip == NULL ){
       printf( "Failed to open file %s \n" , source );
    }
-   op = fopen( destination , "rb" );
+   op = fopen( destination , "ab" );
    if( op == NULL ){
       printf( "Failed to open file %s \n" , destination );
-   }
-   fprintf( op , "String,File Name,md5,offset,size\n" ); 
+   }   
    while((len = fread( buf , 1 , RDLEN , ip )) != 0 ){
-      printf("Inside\n");
       strcpy( out , "" );
       getMD5( buf , len , out );
-      printf( "%s,%s,%lu,%lu\n" , source , out , offset , len );
       fprintf( op , "%s,%s,%lu,%lu\n" , source , out , offset , len );
       offset += len;
    }
    if( fclose( op ) != 0 ){
       printf( "Error closing file %s\n" , destination );
    }
-   if(fclose(ip)!=0){
+   if( fclose( ip ) != 0){
       printf( "Error closing file %s\n" , source );
    }
 }
@@ -97,30 +100,32 @@ void generateDedupDump( char* source,	       // IN: Abs path of source file
 /*
  * -------------------------------------------------------
  *
- *  isAccessible --
+ * isDedupCandidate --
  *
- *    Checks if the file can be accessed by the program
+ *    Checks if the file can be accessed by the program.
+ *    Objective is to avoid analyzing infinte streams, 
+ *    pipes & raw devices like /dev/random. Considers
+ *    any file with a size lesser than 4kB as 
+ *    ineligible for deduplication analysis
  *
- *  Results:
+ * Results:
  *    Returns 1 on success, and 0 on failure
  *
- *  Side Effect:
- *    No major side effects. File is opened and closed in read
- *    mode.
+ * Side Effect:
+ *    None
  *
  * -------------------------------------------------------
  */
 
 int isDedupCandidate(char *source) // IN: Abs path to check
 {
-/*   size_t size;
+   size_t size;
    struct stat st;
    stat( source , &st );
    size = st.st_size;
    if( size < 1024 * 4 ){ // Files with size less than 4kB to be ignored 
-			// eg. Infinite streams and raw devices
       return 0;
-   }*/
+   }
    return 1;
 }
 
@@ -128,11 +133,13 @@ int isDedupCandidate(char *source) // IN: Abs path to check
 /*
  * ------------------------------------------------------------
  *
- *  traverse --
+ * traverse --
  *
  *    Traverses all the files in a directory and calls the 
  *    method generateDedupDump for each file
  *
+ * Side Effects:
+ *    None
  * -------------------------------------------------------------
  */
 
@@ -143,7 +150,7 @@ void traverse( char *dirPath ) // IN: Directory Path
    char path[ MAX_FILE_NAME_LEN ];
    int len;
    Str_Strcpy( path , dirPath , MAX_FILE_NAME_LEN );
-   len=(int)strlen(dirPath);
+   len = (int) strlen( dirPath );
    path[ len++ ] = '/';
    if (NULL == (FD = opendir (dirPath))){
       printf("Error : Failed to open input directory\n"); 
@@ -159,4 +166,30 @@ void traverse( char *dirPath ) // IN: Directory Path
       generateDedupDump( path , DST );
    }
    return;
+}
+
+/*
+ * ----------------------------------------------------------
+ *
+ * printHeader --
+ *
+ *    Prints the header for columns in the text dump
+ *  
+ * Side Effects:
+ *    None
+ * ----------------------------------------------------------
+ */
+
+void printHeader(char *destination) // IN: Absolute path of text dump
+{
+   FILE *op;
+   op = fopen( destination , "ab" );
+   if( op == NULL ){
+      printf( "Failed to open file %s \n" , destination );
+   } 
+   fprintf( op , "File Name,md5,offset,size\n" ); 
+   if( fclose( op ) != 0 ){
+      printf( "Error closing file %s\n" , destination );
+   }
+  
 }

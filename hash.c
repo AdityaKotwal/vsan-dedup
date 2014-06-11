@@ -1,4 +1,11 @@
+/*********************************************************
+ * Copyright 2014 VMware, Inc.  All rights reserved.
+ * -- VMware Confidential
+ *********************************************************/
+
 /*
+ * push.c
+ *
  * This module deals with functions to encode string values
  * to their corresponing md5 hash
  */
@@ -10,11 +17,13 @@
 /*
  * --------------------------------------------------------
  *
- *  getMD5 --
+ * getMD5 --
  *
  *    A function to generate MD5 hash of a string using 
  *    funcitons available in the openSSL library.
  *
+ * Side Effects:
+ *    None
  * ----------------------------------------------------------
  */
 
@@ -44,12 +53,15 @@ void getMD5(const char *string,	 // IN: String buffer which has to be encoded
 /*
  * ----------------------------------------------------------
  * 
- *  bin2Hex --
+ * bin2Hex --
  *
  *    A function to get the equivalent hexadecimal representation
  *    of a binary value passed.
  *
- * Required:
+ * Side Effects:
+ *    None
+ *
+ * Note:
  *    The 4 LSB bits must be 0 for the input
  * ---------------------------------------------------------
  */
@@ -57,10 +69,6 @@ void getMD5(const char *string,	 // IN: String buffer which has to be encoded
 char bin2Hex(unsigned char bin) // IN: the binary number passed
 {			        //     with higher nibble set to 0
    int value; 
-/*   value = (bin & 0x1);
-   value += (bin & 0x2) * 2;
-   value += (bin & 0x4) * 4;
-   value += (bin & 0x8) * 8;*/
    value = (int) bin;
    if(value < 10){
       return ((char)(value + 0x30)); //0x30 is the ascii value for '0'

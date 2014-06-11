@@ -1,7 +1,10 @@
-
+/*********************************************************
+ * Copyright 2014 VMware, Inc.  All rights reserved.
+ * -- VMware Confidential
+ *********************************************************/
 
 /*
- * ddup.h -
+ * dedup.h -
  *
  *    This header file illustrates the modules used for
  *    the desiref purpose.
@@ -38,4 +41,5 @@
    void cleanDump(char *file);
    int isDedupCandidate(char *source);
    void traverse(char *dirPath);
+   void printHeader(char *destination);
 #endif
